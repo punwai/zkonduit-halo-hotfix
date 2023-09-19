@@ -333,13 +333,16 @@ where
                 };
 
                 // Synthesize the circuit to obtain the witness and other information.
+                let start = Instant::now();
                 ConcreteCircuit::FloorPlanner::synthesize(
                     &mut witness,
                     circuit,
                     config.clone(),
                     meta.constants.clone(),
                 )?;
+                println!("Witness generation (inside circuit) time: {:?}", start.elapsed());
 
+                let start = Instant::now();
                 let mut advice_values = batch_invert_assigned::<Scheme::Scalar>(
                     witness
                         .advice
@@ -390,6 +393,8 @@ where
                     advice.advice_polys[*column_index] = advice_values;
                     advice.advice_blinds[*column_index] = blind;
                 }
+
+                println!("Advice commitment (inside circuit) time: {:?}", start.elapsed());
             }
 
             for (index, phase) in meta.challenge_phase.iter().enumerate() {
